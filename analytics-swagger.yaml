@@ -1,0 +1,657 @@
+components:
+  schemas:
+    FormattedDataUsageBySubscriber:
+      properties:
+        subscriberDataUsage:
+          format: json
+          type: string
+          description: '<p>For the specified date range, a list of subscriber identifiers with&#58;</p><ul><li>the date and time of each subscriber''s last network connection, and</li><li>data usage in bytes.</li></ul>'
+          example:
+            '447500000001':
+              '2016-12-06T10:30:00+00:00': '2182'
+            '447500000003':
+              '2016-12-01T13:00:00+00:00': '1735'
+            '447500000002':
+              '2016-12-29T10:30:00+00:00': '1212'
+        totalDataUsage:
+          type: integer
+          description: 'For the specified date range, the total data usage of all subscribers, in bytes.'
+          example: 5129
+      required:
+        - subscriberDataUsage
+        - totalDataUsage
+      type: object
+      example:
+        subscriberDataUsage:
+          '447500000001':
+            '2016-12-06T10:30:00+00:00': '2182'
+          '447500000003':
+            '2016-12-01T13:00:00+00:00': '1735'
+          '447500000002':
+            '2016-12-29T10:30:00+00:00': '1212'
+        totalData: 5129
+    FormattedSubscriberDataUsageByIpAddress:
+      properties:
+        dataUsageByIp:
+          format: json
+          type: string
+          description: 'For the specified date range, a list of IP addresses to which data was sent, the unit used to report usage (bytes), and the amount of data sent to each address.'
+          example:
+            8.8.8.4:
+              lastSeen: '2016-12-29T10:30:00+00:00'
+              bytes: '2182'
+        totalData:
+          type: integer
+          description: 'For the specified date range, your company''s total data usage.'
+          example: 2182
+      required:
+        - dataUsageByIp
+        - totalData
+      type: object
+      example:
+        dataUsageByIp:
+          8.8.8.4:
+            bytes: '2182'
+          8.8.8.5:
+            bytes: '1234'
+        totalData: '3416'
+    FormattedDataUsageByNetworkProtocol:
+      type: object
+      properties:
+        content:
+          format: json
+          type: string
+          description: 'For the specified date range, the data usage per network protocol. For each protocol, the response shows the data usage per hour.'
+          example:
+            TCP:
+              '2016-12-16T10:00:00+00:00': '132'
+              '2017-01-01T00:00:00+00:00': '2000'
+            UDP:
+              '2017-12-16T10:00:00+00:00': '5311'
+              '2018-01-01T00:00:00+00:00': '6001'
+    FormattedCompanySessionCount:
+      type: object
+      properties:
+        content:
+          format: json
+          type: string
+          description: 'For the specified date range, the number of sessions for each hour during which a session occurred.'
+          example:
+            '2016-12-16T10:00:00+00:00': '3'
+            '2017-01-01T00:00:00+00:00': '1'
+    FormattedCompanyDataUsageByIpAddress:
+      properties:
+        dataUsageByIp:
+          format: json
+          type: string
+          description: 'For the specified date range, the IP addresses to which data was sent and the amount of data sent to each address, in bytes.'
+          example:
+            8.8.8.4:
+              lastSeen: '2017-08-17T13:15:00+00:1'
+              bytes: '2182'
+        totalData:
+          type: integer
+          description: 'For the specified date range, your company''s total data usage.'
+          example: 2182
+      required:
+        - dataUsageByIp
+        - totalData
+      type: object
+      example:
+        dataUsageByIp:
+          8.8.8.4:
+            bytes: '2182'
+          8.8.8.5:
+            bytes: '1234'
+        totalData: '3416'
+    FormattedDataUsageByDirection:
+      properties:
+        mobileTerminated:
+          type: object
+          description: MT data usage by time period.
+          example:
+            '2013-11-23T11:00:00+00:00': '2453'
+            '2013-11-23T11:30:00+00:00': '2453'
+        mobileOriginated:
+          type: object
+          description: MO data usage by time period.
+          example:
+            '2013-11-23T11:00:00+00:00': '523'
+            '2013-11-23T11:30:00+00:00': '245'
+      description: 'For the specified date range, the MO and MT data usage totals.'
+      example:
+        mobileTerminated:
+          '2016-11-28T11:00:00+00:00': '420'
+          '2016-11-29T10:00:00+00:00': '316'
+        mobileOriginated:
+          '2016-11-28T11:00:00+00:00': '420'
+          '2016-11-29T10:00:00+00:00': '316'
+info:
+  title: Analytics
+  version: 4.0.0
+  description: 'Retrieve statistical information about company and subscriber data usage and session counts.<p>You can use the Analytics endpoints to view the following information for a specified date range&#58;</p> <ul><li>Company-wide data usage</li><li>A specific subscriber''s data usage</li><li>Company-wide session count</li><li>A specific subscriber''s session count</li><li>Company-wide data usage per network protocol</li><li>Company-wide data usage per IP address</li><li>A specified subscriber''s data usage per IP address</li>'
+servers:
+  - url: 'https://api.connectivity-us.pelion.com'
+  - url: 'https://api.iot-x.com'
+openapi: 3.0.0
+paths:
+  /analytics/data-usage:
+    get:
+      operationId: AnalyticsController.getDataUsageForCompany
+      parameters:
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          required: true
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          schema:
+            type: string
+            format: YYYY-MM-DD
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormattedDataUsageByDirection'
+          description: Success - returns your company's data usage.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: Returns your company's data usage for the specified date range.
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` scope.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> permission enabled.</p><br><p><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p><br><p>The response breaks down data usage into two categories&#58;</p> <ul><li><em>Mobile Originated (MO) data</em> is the amount of data sent from the subscriber.</li><li><em>Mobile Terminated (MT) data</em> is the amount of data received by the subscriber.</li></ul>'
+  /analytics/data-usage-by-subscriber:
+    get:
+      operationId: AnalyticsController.getDataUsageSubscriberBreakdownForCompany
+      parameters:
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    $ref: '#/components/schemas/FormattedDataUsageBySubscriber'
+          description: Success - returns data usage per subscriber.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: 'For the specified date range, returns your company''s data usage per subscriber.'
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` scope.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> permission enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p>'
+  '/analytics/data-usage/{physicalId}':
+    get:
+      operationId: AnalyticsController.getDataUsageForSubscriber
+      parameters:
+        - in: query
+          name: physicalId
+          description: The unique subscriber identifier.
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: path
+          name: physicalId
+          required: true
+          schema:
+            type: string
+            description: The unique subscriber identifier.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormattedDataUsageByDirection'
+          description: Success - returns the subscriber's data usage.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: Returns the subscriber's data usage for the specified date range.
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` and `devices_view` scopes.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> and <strong>View Subscriber</strong> permissions enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p><br><p>You must provide the subscriber''s <em>physicalId</em> as a parameter in the request. This value varies depending on the subscriber type&#58;</p><ul><li><em>Cellular</em> - use the ICCID</li><li><em>Non-IP</em> - use the Device EUI</li><li><em>Satellite</em> - use the IMEI</li></ul></p><br><p>The response breaks down data usage into two categories&#58; <ul><li><em>Mobile Originated (MO) data</em> is the amount of data sent from the subscriber.</li><li><em>Mobile Terminated (MT) data</em> is the amount of data received by the subscriber.</li></ul></p>'
+  /analytics/session-count:
+    get:
+      operationId: AnalyticsController.getSessionCountForCompany
+      parameters:
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormattedCompanySessionCount'
+          description: Success - returns your company's session count.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: Returns your company's session count for the specified date range.
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` scope.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> permission enabled. </p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p>'
+  '/analytics/session-count/{physicalId}':
+    get:
+      operationId: AnalyticsController.getSessionCountForSubscriber
+      parameters:
+        - in: query
+          name: physicalId
+          description: The unique subscriber identifier.
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: path
+          name: physicalId
+          required: true
+          schema:
+            type: string
+            description: The unique subscriber ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormattedCompanySessionCount'
+          description: Success - returns the subscriber's session count.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: Returns the subscriber's session count for the specified date range.
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` and `devices_view` scopes.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> and <strong>View Subscriber</strong> permissions enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p><br><p>You must provide the subscriber''s <em>physicalId</em> as a parameter in the request. This value varies depending on the subscriber type&#58;</p><ul><li><em>Cellular</em> - use the ICCID</li><li><em>Non-IP</em> - use the Device EUI</li><li><em>Satellite</em> - use the IMEI</li></ul></p><br><p>The response breaks down data usage into two categories&#58; <ul><li><em>Mobile Originated (MO) data</em> is the amount of data sent from the subscriber.</li><li><em>Mobile Terminated (MT) data</em> is the amount of data received by the subscriber.</li></ul></p>'
+  /analytics/data-usage-network-protocol:
+    get:
+      operationId: AnalyticsController.getDataUsagePerNetworkProtocolForCompany
+      parameters:
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormattedDataUsageByNetworkProtocol'
+          description: Success - returns your company's data usage per protocol.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: 'For the specified date range, returns your company''s data usage per network protocol.'
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` scope.</p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> permission enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p>'
+  /analytics/data-usage-ip-address:
+    get:
+      operationId: AnalyticsController.getDataUsageByIpAddressForCompany
+      parameters:
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormattedCompanyDataUsageByIpAddress'
+          description: Success - returns your company's data usage per IP address to which data was sent.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: 'For the specified date range, returns your company''s data usage per IP address to which data was sent.'
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` scope. <p><br>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> permission enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p>'
+  '/analytics/data-usage-ip-address/{physicalId}':
+    get:
+      operationId: AnalyticsController.getDataUsageByIpAddressForSubscriber
+      parameters:
+        - in: query
+          name: physicalId
+          description: The unique subscriber identifier.
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: startDate
+          description: 'The start date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: query
+          name: endDate
+          description: 'The end date in the format YYYY-MM-DDTHH:MM:SS+/-HH:MM.'
+          required: true
+          schema:
+            type: string
+            format: YYYY-MM-DD
+        - in: path
+          name: physicalId
+          required: true
+          schema:
+            type: string
+            description: The unique subscriber ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormattedSubscriberDataUsageByIpAddress'
+          description: Success - returns the subscriber's data usage totals per IP address to which data was sent.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - invalid request.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      code:
+                        type: string
+          description: Error - resource not found.
+      summary: 'For the specified date range, returns the  subscriber''s data usage totals per IP address to which data was sent.'
+      tags:
+        - Analytics
+      description: 'To use this endpoint, your access token must be authorized with the `statistics` and `devices_view` scopes. </p><br><p>To generate an access token that is authorized to use this endpoint, your user account must have the <strong>View Statistics Overview</strong> and <strong>View Subscriber</strong> permissions enabled.</p><br><p>To define the date range, pass the startDate and endDate as parameters using the ISO 8601 format (YYYY-MM-DDTHH:MM:SS+/-HH:MM).</p><br><p>You must provide the subscriber''s <em>physicalId</em> as a parameter in the request. This value varies depending on the subscriber type&#58;</p><ul><li><em>Cellular</em> - use the ICCID</li><li><em>Non-IP</em> - use the Device EUI</li><li><em>Satellite</em> - use the IMEI</li></ul></p><br><p>The response breaks down data usage into two categories&#58; <ul><li><em>Mobile Originated (MO) data</em> is the amount of data sent from the subscriber.</li><li><em>Mobile Terminated (MT) data</em> is the amount of data received by the subscriber.</li></ul></p>'
